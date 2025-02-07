@@ -1,0 +1,109 @@
+package com.example.wavelink.Pages
+
+import android.annotation.SuppressLint
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.wavelink.AccountPage
+import com.example.wavelink.R
+import com.example.wavelink.TextFieldWL
+import com.example.wavelink.ui.theme.MutedGrayText
+import com.example.wavelink.ui.theme.SoftPurple
+import com.example.wavelink.ui.theme.WaveLinkTheme
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun AccountPage(){
+    val verticalScroll= rememberScrollState()
+    WaveLinkTheme {
+        Scaffold(bottomBar = {BottomMenu()}) {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(state = verticalScroll).animateContentSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().paint(
+                        painter = painterResource(R.drawable.app_logo),
+                        contentScale = ContentScale.FillBounds
+                    ),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        "Account Page ",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Wave Link",
+                        color = MutedGrayText,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        TextFieldWL(text = "Nilay", password = false, label = "Name") {
+                            it
+                        }
+                        TextFieldWL(text = "abc@gmail.com", password = false, label = "Email") {
+                            it
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(onClick = {
+                        }) {
+                            Text(text = "Log Out", fontSize = 18.sp)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
+                Row() {
+                    Box(modifier = Modifier.fillMaxWidth().padding(start = 10.dp).animateContentSize(),){
+                        Text("View History...", color = SoftPurple, modifier = Modifier.clickable {  })
+
+                    }
+                }
+            }
+        }
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun AccountPagePr(){
+    AccountPage()
+}
