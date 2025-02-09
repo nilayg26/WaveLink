@@ -1,5 +1,7 @@
 package com.example.wavelink.Pages
+
 import android.content.SharedPreferences
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,40 +34,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.wavelink.ForgotPage
 import com.example.wavelink.LoadingScreenLL
 import com.example.wavelink.LogInPage
 import com.example.wavelink.R
-import com.example.wavelink.SignInPage
 import com.example.wavelink.TextFieldWL
 import com.example.wavelink.ViewModels.EmailNotVerified
 import com.example.wavelink.ViewModels.FirebaseViewModel
 import com.example.wavelink.ViewModels.LoadingFirebase
 import com.example.wavelink.ui.theme.MutedGrayText
 import com.example.wavelink.ui.theme.WaveLinkTheme
-import com.example.wavelink.check
+
 @Composable
-fun SignInPage(
+fun ForgotPage(
     firebaseViewModel: FirebaseViewModel,
     sharedPreferences: SharedPreferences,
     navController: NavHostController
 ) {
+
     val verticalScroll= rememberScrollState()
+    val context= LocalContext.current
+    val coroutineScope= rememberCoroutineScope()
     val info = remember {
-        mutableStateListOf("","","","")
+        mutableStateListOf("")
     }
     var isLoading by remember {
-       mutableStateOf(false)
+        mutableStateOf(false)
     }
-    val context= LocalContext.current
     val authState=firebaseViewModel.authState.observeAsState()
     LaunchedEffect(authState.value) {
         when (authState.value){
-            EmailNotVerified -> {navController.navigate(LogInPage.route){
-                popUpTo(SignInPage.route){
+            LoadingFirebase->{isLoading=true}
+            EmailNotVerified->{navController.navigate(LogInPage.route){
+                popUpTo(ForgotPage.route){
                     inclusive=true
                 }
             }}
-            LoadingFirebase->{isLoading=true}
             else->{isLoading=false}
         }
     }
@@ -97,32 +102,23 @@ fun SignInPage(
                     modifier = Modifier.fillMaxWidth().verticalScroll(state = verticalScroll),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextFieldWL(text = info[0], password = false, label = "Name"){info[0]=it; info[0]}
-                    TextFieldWL(text = info[1], password = false, label = "Email") {info[1]=it; info[1] }
-                    TextFieldWL(text = info[2], password = true, label = "Password") { info[2]=it; info[2] }
-                    TextFieldWL(text = info[3], password = true, label = "Confirm Password") { info[3]=it;info[3]}
-                    Spacer(modifier = Modifier.height(30.dp))
-                    Button(onClick = {
-                        if (check(info,context)){
-                            firebaseViewModel.signUp(context=context,sharedPreferences=sharedPreferences,info)
+                    TextFieldWL(text = info[0], password = false, label = "Email") { info[0]=it ;info[0] }
+                    Spacer(Modifier.height(40.dp))
+                    Button(modifier = Modifier.animateContentSize(),onClick = {
+                        if (!isLoading&& com.example.wavelink.check(info, context)){
+                            firebaseViewModel.forgotPassword(email = info[0],context=context)
                         }
                     }) {
                         if (!isLoading) {
-                            Text(text = "Go !", fontSize = 18.sp)
+                            Text(text = "Get Link !", fontSize = 18.sp)
                         }
                         else{
                             LoadingScreenLL()
                         }
                     }
-                    Spacer(Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
                 }
             }
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun SignInPagePr(){
-//    SignInPage()
-//}

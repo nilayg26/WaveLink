@@ -42,7 +42,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -57,8 +56,6 @@ import com.example.wavelink.ViewModels.BluetoothDataReceived
 import com.example.wavelink.ViewModels.BluetoothViewModel
 import com.example.wavelink.ViewModels.FirebaseViewModel
 import com.example.wavelink.ViewModels.GeminiViewModel
-import com.example.wavelink.ViewModels.LoadingGemini
-import com.example.wavelink.ViewModels.OutputGenerated
 import com.example.wavelink.ui.theme.DeepBlack
 import com.example.wavelink.ui.theme.TechBlue
 import com.example.wavelink.ui.theme.WaveLinkTheme
@@ -68,7 +65,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun InteractivePage(
+fun InteractivePage2(
     bluetoothViewModel: BluetoothViewModel,
     geminiViewModel: GeminiViewModel,
     firebaseViewModel: FirebaseViewModel,
@@ -77,24 +74,20 @@ fun InteractivePage(
     var hasBluetoothPermission by remember {
         mutableStateOf(false)
     }
-    val geminiOutput=geminiViewModel.output
+    val direction=bluetoothViewModel.statusOfDirection.collectAsState("")
+    //val geminiOutput=geminiViewModel.output
     var colorMatrix= remember {
-        mutableStateListOf( listOf(Color.White, Color.White, Color.White, Color.White),
+        mutableStateListOf(
+            listOf(Color.White, Color.White, Color.White, Color.White),
             listOf(Color.White, Color.White, Color.White, Color.White),
             listOf(Color.White, Color.White, Color.White, Color.White),
             listOf(Color.White, Color.White, Color.White, Color.White))
     }
+    val bluetoothData=bluetoothViewModel.receivedData
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         hasBluetoothPermission = permissions.values.all { it }
-    }
-    val result=geminiViewModel.result.observeAsState()
-    LaunchedEffect(result.value) {
-        if (result.value!=null&& result.value?.isNotEmpty() == true){
-            println(result.value.toString())
-            updateColorMatrix(colorMatrix,result.value.toString())
-        }
     }
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -123,7 +116,7 @@ fun InteractivePage(
         when(bluetoothState.value){
             is BluetoothDataReceived-> {
                 val data =bluetoothViewModel.receivedData
-                geminiViewModel.getGeminiOutput(context,data)
+                updateColorMatrix(colorMatrix, getData(data))
             }
         }
     }
@@ -131,15 +124,6 @@ fun InteractivePage(
         onDispose {
             bluetoothViewModel.disconnect()
 
-        }
-    }
-    LaunchedEffect(geminiState.value) {
-        when(geminiState.value){
-            LoadingGemini->{isloading=true}
-            OutputGenerated->{
-                println("AI response: "+geminiViewModel.output.value.toString())
-            }
-            else ->{isloading=false}
         }
     }
     val verticalScrollState= rememberScrollState()
@@ -165,12 +149,12 @@ fun InteractivePage(
                 }
             )
         }){ paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(verticalScrollState)
-        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(verticalScrollState)
+            ) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Card(
                     modifier = Modifier
@@ -220,8 +204,7 @@ fun InteractivePage(
                             horizontalArrangement = Arrangement.Absolute.SpaceAround
                         ) {
                             Text("AI Response: ", color = TechBlue, fontSize = 25.sp)
-                            geminiOutput.value.toString()
-                            Text(if(geminiOutput.value.toString()=="null"){"idle"}else{geminiOutput.value.toString()}, color = TechBlue, fontSize = 25.sp)
+                            Text(direction.value, color = TechBlue, fontSize = 25.sp)
                         }
                         Spacer(Modifier.height(30.dp))
                     }
@@ -240,13 +223,13 @@ fun InteractivePage(
                                     .clickable {
                                         coroutineScope.launch {
                                             if (bluetoothState.value !is BluetoothConnected||bluetoothState.value !is BluetoothDataReceived) {
-                                                bluetoothViewModel.checkExistingConnection(context,geminiViewModel)
+                                                bluetoothViewModel.checkExistingConnection(context,geminiViewModel,page2 = true)
                                             }
                                         }
                                     },
                                 horizontalArrangement = Arrangement.Absolute.SpaceAround
                             ) {
-                                Text("Connect ", color = DeepBlack, fontSize = 20.sp)
+                                Text("Connect", color = DeepBlack, fontSize = 20.sp)
                             }
                             Spacer(Modifier.height(30.dp))
                         }
@@ -262,7 +245,7 @@ fun InteractivePage(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Absolute.SpaceAround
                             ) {
-                                Text("Map: Y", color = TechBlue, fontSize = 20.sp)
+                                Text("Map: Y", color = DeepBlack, fontSize = 20.sp)
                             }
                             Spacer(Modifier.height(30.dp))
                         }
@@ -273,21 +256,20 @@ fun InteractivePage(
         }
     }
 }
-@Composable
-fun Console(){
-    Box(modifier = Modifier.padding(16.dp)){
-        Text("HI V")
+fun getData(data: String): String {
+    println(data)
+    if(data==""){
+        return  "1,1,1,1\n1,1,1,1\n1,1,1,1\n1,1,1,1"
     }
-}
-fun updateColorMatrix(colorMatrix: SnapshotStateList<List<Color>>, inputString: String) {
-    colorMatrix.clear()
-    val map = mapOf(0 to Color.Black, 1 to Color.White)
-
-    val rows = inputString.split("\n")
-    for (rowStr in rows) {
-        val colorsInRow = rowStr.split(",").mapNotNull { elementStr ->
-            elementStr.toIntOrNull()?.let { num -> map[num] ?: Color.Gray }
+    var str=""
+    val row= data.split(";")
+    for(i in 0..3){
+        try {
+            str=str+row[i]+"\n"
         }
-        colorMatrix.add(colorsInRow)
+        catch (e:Exception){
+            str=str+"1,1,1,1"+"\n"
+        }
     }
+    return str
 }

@@ -18,3 +18,9 @@ object AccountPage:Destination{
 object InteractivePage:Destination{
     override var route="inter"
 }
+object ForgotPage:Destination{
+    override var route="forgotpass"
+}
+object InteractivePage2:Destination{
+    override var route="inter2"
+}

@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-02-07T15:02:39.841832Z">
+        <DropdownSelection timestamp="2025-02-08T17:52:12.155902Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=TGAQOF9D4L5XLZSG" />
@@ -23,6 +23,9 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="AccountPagePr">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="InteractivePagePr">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
