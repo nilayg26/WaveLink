@@ -1,4 +1,9 @@
 # 🚀 WaveLink
+<div align="center">
+  <img src="https://nilayg26.github.io/Animation/waveLinkLogo.png" alt="WaveLink Logo" width="300"/>
+</div>
+
+
 
 [🎥 Watch Project Demo](https://drive.google.com/file/d/1JDl03vZDYtb3RqyTyTADU7hbFrmrDZ6h/view?usp=share_link)
 
