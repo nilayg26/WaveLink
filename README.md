@@ -1,4 +1,4 @@
-# 🚀 WaveLink
+# 🚀 WaveLink (Hackathon Project Yantra Central Hackathon VIT Vellore 2025)
 <div align="center">
   <img src="https://nilayg26.github.io/Animation/waveLinkLogo.png" alt="WaveLink Logo" width="300"/>
 </div>
